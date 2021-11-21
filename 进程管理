@@ -1,0 +1,177 @@
+1.	ps命令
+（英文全拼：process status）命令用于显示当前进程的状态，类似windows 的任务管理器。
+语法：ps  [选项]
+命令选项：
+1)	-A 列出所有的进程
+2)	-w 显示加宽可以显示较多的资讯
+3)	-au 显示较详细的资讯
+4)	-aux 显示所有包含其他使用者的行程
+au(x) 输出格式 :
+USER PID %CPU %MEM VSZ RSS TTY STAT START TIME COMMAND
+1.	USER: 行程拥有者
+2.	PID: pid
+3.	%CPU: 占用的 CPU 使用率
+4.	%MEM: 占用的记忆体使用率
+5.	VSZ: 占用的虚拟记忆体大小
+6.	RSS: 占用的记忆体大小
+7.	TTY: 终端的次要装置号码 (minor device number of tty)
+8.	STAT: 该行程的状态:
+D: 无法中断的休眠状态 (通常 IO 的进程)
+R: 正在执行中
+S: 静止状态
+T: 暂停执行
+Z: 不存在但暂时无法消除
+W: 没有足够的记忆体分页可分配
+<: 高优先序的行程
+N: 低优先序的行程
+L: 有记忆体分页分配并锁在记忆体内 (实时系统或捱A I/O)
+9.	START: 行程开始时间
+10.	TIME: 执行的时间
+11.	COMMAND:所执行的指令
+
+2.	pstree命令
+pstree命令将所有行程以树状图显示，树状图将会以 pid (如果有指定) 或是以 init 这个基本行程为根 (root)，如果有指定使用者 id，则树状图会只显示该使用者所拥有的行程。
+pstree [选项]
+命令选项：
+1)	-a：显示每个进程的完整命令，包含路径、参数或是常驻服务的标识
+2)	-c：不使用精简标识法
+3)	-h：列出树状图时，特别标明现在执行的进程
+4)	-H：此参数的效果和指定-h参数类似,但特别标明指定的进程
+5)	-I：采用长列格式显示树状图
+6)	-n：用进程识别码排序。默认是以进程名称来排序
+7)	-p：显示进程号
+8)	-u：显示用户名称
+9)	-U：使用UTF-8列绘图字符
+
+3.top 命令
+top命令用于实时显示 process 的动态。
+top [选项]
+命令选项：
+1)	-d : 改变显示的更新速度，或是在交谈式指令列( interactive command)按 s
+2)	-q : 没有任何延迟的显示速度，如果使用者是有 superuser 的权限，则 top 将会以最高的优先序执行
+3)	-c : 切换显示模式，共有两种模式，一是只显示执行档的名称，另一种是显示完整的路径与名称
+4)	-S : 累积模式，会将己完成或消失的子进程 ( dead child process ) 的 CPU time 累积起来
+5)	-s : 安全模式，将交谈式指令取消, 避免潜在的危机
+6)	-i : 不显示任何闲置 (idle) 或无用 (zombie) 的进程
+7)	-n : 更新的次数，完成后将会退出 top
+8)	-b : 批次档模式，搭配 "n" 参数一起使用，可以用来将 top 的结果输出到档案内
+
+4.进程控制
+kill  [信号代码]  PID
+功能: kill命令用来终止一个进程。向指定的进程发送信号，是Linux下进程管理的常用命令。通常，终止一个前台进程可以使用Ctrl+C组合键，但是，对于一个后台进程就须用kill命令来终止，就需要先使用ps/pidof/pstree/top等工具获取进程PID，然后使用kill命令来杀掉该进程。kill命令是通过向进程发送指定的信号来结束相应进程的。默认信号为SIGTERM(15)，可终止指定的进程。如果仍无法终止该进程，可以使用SIGKILL(9)信号强制终止进程。kill 命令的各信号代码及其功能如下：
+1)	-0：给所有在当前进程组中的进程发送信号
+2)	-1：给所有进程号大于1的进程发送信号
+3)	-9：强行终止进程
+4)	-15(默认)：终止进程
+5)	-17：将进程挂起
+6)	-19：将挂起的进程激活
+7)	-a：终止所有进程
+8)	-l：kill-l[signal]，指定信号的名称列表。若不加选项，则-l参数会列出全部信号名称
+9)	-P：模拟发送信号。显示进程的ID，不发送信号
+10)	-s：指明发送给进程的信号，例如-9(强行终止)，默认发送TERM信号
+11)	-u：指定用户
+killall [-signal] <进程名>  杀死指定名字的进程
+pkill [options] pattern 通过程序的名字，直接杀死所有进程
+xkill 杀死桌面上图形界面的程序
+
+5.进程的优先级
+1)	nice
+语法：nice [-n ADJUST] [--adjustment= ADJUST] [--help] [--version] [command [arg...]]
+功能：进程的优先级，用nice值来表示。nice命令可以调整程序运行的优先级，让使用者在执进程序时，指定一个优先级，称为nice值（ADJUST）
+范围从-20~19，数值越小优先级越高，数值越大优先级越低，默认ADJUST是10。
+选项 -n ADJUST 或 --adjustment=ADJUST，功能是将原优先级增加ADJUST。
+2）renice
+语法：renice priority [ [ -p ] pids ] [ [ -g ] pgrps ] [ [ -u ] users ]
+功能：renice命令允许用户修改一个正在运行的进程的优先权等级。
+例如：将进程PID为456及123的进程与进程拥有者为aaa及root的优先权等级分别加1。
+# renice  +1  456  -u  aaa  root  -p  123
+
+6.前台进程与后台进程
+command &、ctrl+z、jobs、fg、bg
+
+7. 周期性/定时执行任务
+1)	crontab 命令
+crontab是用来定期执行程序的命令。
+
+crontab [ -u user ] { -l | -r | -e }
+1.	-u：指定某个用户。默认是root用户
+2.	-e：编辑某个用户的crontab
+3.	-r：删除某个用户的crontab
+4.	-l：列出某个用户的crontab
+启动服务：
+service crond status
+service crond strart
+service crond stop
+service crond restart
+编辑文件：
+crontab -e file
+
+时间格式如下：
+f1 f2 f3 f4 f5 program
+其中 f1 是表示分钟 (0 - 59)，f2 表示小时 (0 - 23)，f3 表示一个月份中的第几天 (1 - 31)，f4 表示月份(1 - 12)，f5 表示一个星期中的第几天 (0 - 6) (星期天 为0)。program 表示要执行的程序。
+当 f1 为 * 时表示每分钟都要执行 program，f2 为 * 时表示每小时都要执行程序，其余类推
+当 f1 为 a-b 时表示从第 a 分钟到第 b 分钟这段时间内要执行，f2 为 a-b 时表示从第 a 到第 b 小时都要执行，其余类推
+当 f1 为 */n 时表示每 n 分钟个时间间隔执行一次，f2 为 */n 表示每 n 小时个时间间隔执行一次，其余类推
+当 f1 为 a, b, c,... 时表示第 a, b, c,... 分钟要执行，f2 为 a, b, c,... 时表示第 a, b, c...个小时要执行，其余类推
+2)	at命令(定时执行)
+语法：at  [-f  file]  [-mldv]  TIME
+功能：at命令可以让用户在指定时间执行某个程序或命令。
+命令选项：
+1.	-d：删除指定的定时命令
+2.	-f file：读人预先写好的命令文件，用户可以不使用交互模式(不带-f选项)来输入命令，而是将所有的命令先写人文件file后再一次读入
+3.	-l：列出所有的定时命令
+4.	-m：定时命令执行完后将输出结果通过E-mail发给用户
+5.	-v：列出所有已经完成但尚未删除的定时命令
+
+# atq						//查询当前用户正在等待的计划任务
+# atrm  <任务号>			//删除一个正在等待的计划任务
+
+8.系统和服务管理
+systemd的主要工具
+1)	systemctl：查询和控制systemd系统和系统服务管理器的状态
+2)	journalctl：查询系统的journal（日志）
+3)	systemd-cgls：以树形列出正在运行的进程，可以递归显示linux控制组内容
+1.服务启动与停止
+systemctl start [unit type]	启动服务
+systemctl stop [unit type]	停止服务
+systemctl restart [unit type]	重启服务
+systemctl status [unit type]	查看服务状态
+
+应用举例：
+#启动网络服务
+systemctl start network.service
+#停止网络服务
+systemctl stop network.service
+#重启网络服务
+systemctl restart network.service
+#查看网络服务状态
+systemctl status network.serivce
+2.设置开机启动/不启动
+systemctl enable [unit type]	设置服务开机启动
+systemctl disable [unit type]	设备服务禁止开机启动
+
+应用举例：
+#停止cup电源管理服务
+systemctl stop cups.service
+ #禁止cups服务开机启动
+systemctl disable cups.service
+ #查看cups服务状态
+systemctl status cups.service
+ #重新设置cups服务开机启动
+systemctl enable cups.service
+
+
+3.查看系统上上所有的服务
+systemctl	列出所有的系统服务
+systemctl list-units	列出所有启动unit
+systemctl list-unit-files	列出所有启动文件
+systemctl list-units –type=service –all	列出所有service类型的unit
+systemctl list-units –type=service –all grep cpu	列出 cpu电源管理机制的服务
+systemctl list-units –type=target –all	列出所有target
+电源管理
+systemctl poweroff	系统关机
+systemctl reboot	重新启动
+systemctl suspend	进入睡眠模式
+systemctl hibernate	进入休眠模式
+systemctl rescue	强制进入救援模式
+systemctl emergency	强制进入紧急救援模式
