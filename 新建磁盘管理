@@ -1,0 +1,35 @@
+虚拟机新建虚拟磁盘，并挂载到虚拟系统下。
+磁盘所在目录 /dev/
+磁盘名称 sd*
+1.	sudo fdisk -l 列出所有分区表
+2.分区		sudo fdisk /dev/sdb	使用n进行新建分区，使用w命令进行保存退出。
+3.格式化	sudo mkfs -t vfat /dev/sdb1    (格式化成fat32) 或
+sudo mkfs -t ext4 /dev/sdb1  （格式化成ext4分区）
+4.挂载		sudo mount /dev/sdb1 /home/test/disk 
+5.修改所有权限	sudo chown -R test:test /home/test/disk 将磁盘修改拥有者为test账户
+6.卸载		sudo umount /dev/sdb1 或
+            sudo umount /home/test/disk
+
+Linux 自动挂载分区的操作：
+修改	/etc/fstab 添加
+/dev/sdb1  /home/test/disk      ext4	defaults 0 0
+
+自动挂载的 /etc/fstab文件
+设备 挂载点 文件系统 权限 备份 检测
+其中权限：
+auto:系统自动挂载，fstab默认就是这个选项
+defaults: rw,suid, dev, exec, auto, nouser, and async
+noauto开机不自动挂载
+nouser只有超级用户可以挂载
+ro按只读权限挂载
+rw按可读可写权限挂载
+user任何用户都可以挂载
+
+blkid命令：查看块设备（包含交换分区）的文件系统类型、LABEL、UUID、挂载目录等信息
+df（disk free）命令：查看磁盘分区的使用情况
+命令选项：
+-T：显示文件类型
+-h：以K,M,G的方式显示大小
+如df -Th
+du（disk usage）命令：查看文件的大小
+du -sh：查看文件夹大小
