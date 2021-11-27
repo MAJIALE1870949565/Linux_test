@@ -96,3 +96,44 @@ du  -h  --max-depth=1		//输出当前目录下各个子目录所使用的空间
 restore  -t  -f  boot.dump
 4.数据同步 sync
 5.文件以及文件夹操作命令 ls cd mkdir rm rmdir cp mv file wc find ln diff
+ext4格式分区进行磁盘配额设置
+1.创建虚拟磁盘
+2.分区格式化	fdisk	mkfs.ext4
+3.挂载
+	手动挂载，添加参数usrquota
+	sudo mount -o usrquota,grpquota /dev/sdb1 /mnt/disk2/
+	自动挂载，修改/etc/fstab文件
+	/dev/sdb1	 /mnt/disk2	ext4	defaults,usrquota,grpquota	0 0
+3.修改所有者
+	sudo chown test:test /mnt/disk2
+4.进行磁盘配额限制
+4.1	由于ext4文件系统，quota功能默认是不开启的，
+	需要创建磁盘配额的配置文件（aquota.user 和
+	aquota.group），才可以去启动quota功能，
+	使用 quotacheck 命令的 -c 选项
+	sudo quotacheck -c /dev/sdb1   或者
+	sudo quotacheck -cvug /dev/sdb1 
+	-v：显示扫描过程
+	-u：针对扫描用户的情况建立aquota.user
+	-g：针对扫描组的情况建立aquota.group
+4.2	查看和开启磁盘配额命令quotaon
+	sudo quotaon -p /dev/sdb1	显示是否开启了磁盘配额
+	sudo quotaon /dev/sdb1	开启磁盘配额
+4.3	为某一账户或者分组进行磁盘配额分配edpuota命令
+	-u 设置用户的磁盘配额，这是预设的参数。
+	-g 设置群组的磁盘配额。
+	以用户 test 为例，通过如下命令配置此命令的 Quota：
+	[user@localhost ~]# edquota -u test
+	Disk quotas for user test (uid 1000):
+	Filesystem    blocks  soft   hard  inodes  soft  hard
+	/dev/sdb1            4      0        0          1       0      0
+
+edquota 命令配额限制信息
+表头			                 含义
+文件系统（filesystem）	   说明该限制值是针对哪个文件系统（或分区）；
+磁盘容量（blocks）               此列的数值是 quota 自己算出来的，单位为 Kbytes，不要手动修改；
+磁盘容量的软限制（soft）         当用户使用的磁盘空间超过此限制值，则用户在登陆时会收警告信息，告知用户磁盘已满，单位为 KB；
+磁盘容量的硬限制（hard）         要求用户使用的磁盘空间最大不能超过此限制值，单位为 KB；
+文件数量（inodes）	   同 blocks 一样，此项也是 quota自己计算出来的，无需手动修改；
+文件数量的软限制（soft）          当用户拥有的文件数量超过此值，系统会发出警告信息；
+文件数量的硬限制（hard）          用户拥有的文件数量不能超过此值。
